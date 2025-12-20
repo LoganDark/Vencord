@@ -1,42 +1,59 @@
-import { FluxStore } from "..";
+import { FluxStore, Message } from "..";
 import { RelationshipType } from "../../enums";
 
 export class RelationshipStore extends FluxStore {
-    getBlockedIDs(): string[];
-    getBlockedOrIgnoredIDs(): string[];
-    getFriendCount(): number;
-    getFriendIDs(): string[];
-    getIgnoredIDs(): string[];
-
-    getMutableRelationships(): Map<string, RelationshipType>;
-    getNickname(userId: string): string;
-    getOriginApplicationId(userId: string): string | undefined;
-    getOutgoingCount(): number;
-    getPendingCount(): number;
-    getPendingIgnoredCount(): number;
-    getRelationshipCount(): number;
-
-    /** @returns Enum value from constants.RelationshipTypes */
-    getRelationshipType(userId: string): RelationshipType;
-    getSince(userId: string): string;
-    getSinces(): Record<string, string>;
-    getSpamCount(): number;
-    getVersion(): number;
-
-    isBlocked(userId: string): boolean;
-    isBlockedForMessage(userId: string): boolean;
-
-    /**
-     * @see {@link isBlocked}
-     * @see {@link isIgnored}
-     */
-    isBlockedOrIgnored(userId: string): boolean;
-    isBlockedOrIgnoredForMessage(userId: string): boolean;
-
+    /** Returns whether the given user ID is a friend */
     isFriend(userId: string): boolean;
+    /** Returns whether the given user ID is blocked or ignored */
+    isBlockedOrIgnored(userId: string): boolean;
+    /** Returns whether the author of the given message is blocked or ignored */
+    isBlockedOrIgnoredForMessage(message: Message): boolean;
+    /** Returns whether the given user ID is blocked */
+    isBlocked(userId: string): boolean;
+    /** Returns whether the author of the given message is blocked */
+    isBlockedForMessage(message: Message): boolean;
+    /** Returns whether the given user ID is ignored */
     isIgnored(userId: string): boolean;
-    isIgnoredForMessage(userId: string): boolean;
-    isSpam(userId: string): boolean;
-    isStranger(userId: string): boolean;
+    /** Returns whether the author of the given message is ignored */
+    isIgnoredForMessage(message: Message): boolean;
+    /** Returns whether the given user ID is a pending incoming friend request that is not spam or ignored */
     isUnfilteredPendingIncoming(userId: string): boolean;
+    /** Returns the number of pending incoming friend requests that are not spam or ignored */
+    getPendingCount(): number;
+    /** Returns the number of incoming friend requests that are spam */
+    getSpamCount(): number;
+    /** Returns the number of incoming friend requests that are from ignored users */
+    getPendingIgnoredCount(): number;
+    /** Returns the number of outgoing friend requests */
+    getOutgoingCount(): number;
+    /** Returns the number of friends */
+    getFriendCount(): number;
+    /** Returns the number of relationships */
+    getRelationshipCount(): number;
+    /** Returns a map of user IDs to {@link RelationshipType} */
+    getMutableRelationships(): Map<string, RelationshipType>;
+    /** Returns the version of the RelationshipStore */
+    getVersion(): number;
+    /** Returns whether the given user ID is spam */
+    isSpam(userId: string): boolean;
+    /** Returns the {@link RelationshipType} for the given user ID */
+    getRelationshipType(userId: string): RelationshipType;
+    /** Returns the friend nickname for the given user ID */
+    getNickname(userId: string): string | undefined;
+    /** Returns an ISO timestamp string of when the relationship with the given user ID started */
+    getSince(userId: string): string | undefined;
+    /** Returns a map of user IDs to ISO timestamp strings of when each relationship started */
+    getSinces(): Map<string, string>;
+    /** Returns a list of the user IDs of all friends */
+    getFriendIDs(): string[];
+    /** Returns a list of the user IDs of all blocked */
+    getBlockedIDs(): string[];
+    /** Returns a list of the user IDs of all ignored */
+    getIgnoredIDs(): string[];
+    /** Returns a list of the user IDs of all blocked or ignored */
+    getBlockedOrIgnoredIDs(): string[];
+    /** Returns the origin application ID for the given user ID */
+    getOriginApplicationId(userId: string): string | undefined;
+    /** Returns whether the given user ID is a stranger */
+    isStranger(userId: string): boolean | undefined;
 }
