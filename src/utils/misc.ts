@@ -16,8 +16,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { DevsById } from "./constants";
-
 /**
  * Calls .join(" ") on the arguments
  * classes("one", "two") => "one two"
@@ -74,9 +72,6 @@ export const checkIntersecting = (el: Element) => {
 export function identity<T>(value: T): T {
     return value;
 }
-
-export const isPluginDev = (id: string) => Object.hasOwn(DevsById, id);
-export const shouldShowContributorBadge = (id: string) => isPluginDev(id) && DevsById[id].badge !== false;
 
 export function pluralise(amount: number, singular: string, plural = singular + "s") {
     return amount === 1 ? `${amount} ${singular}` : `${amount} ${plural}`;
