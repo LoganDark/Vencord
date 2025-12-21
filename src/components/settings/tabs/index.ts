@@ -12,5 +12,4 @@ export { default as PluginsTab } from "./plugins";
 export { openPluginModal } from "./plugins/PluginModal";
 export { default as BackupAndRestoreTab } from "./sync/BackupAndRestoreTab";
 export { default as ThemesTab } from "./themes";
-export { default as UpdaterTab } from "./updater";
 export { default as VencordTab } from "./vencord";

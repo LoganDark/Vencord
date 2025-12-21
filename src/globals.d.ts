@@ -36,7 +36,6 @@ declare global {
     export var IS_EXTENSION: boolean;
     export var IS_USERSCRIPT: boolean;
     export var IS_STANDALONE: boolean;
-    export var IS_UPDATER_DISABLED: boolean;
     export var IS_DEV: boolean;
     export var IS_REPORTER: boolean;
     export var IS_ANTI_CRASH_TEST: boolean;
