@@ -38,8 +38,6 @@ export type SettingsPluginUiElements = {
 };
 
 export interface Settings {
-    autoUpdate: boolean;
-    autoUpdateNotification: boolean,
     useQuickCss: boolean;
     eagerPatches: boolean;
     disableBackgroundOptimization: boolean;
@@ -95,8 +93,6 @@ export interface Settings {
 }
 
 const DefaultSettings: Settings = {
-    autoUpdate: true,
-    autoUpdateNotification: true,
     useQuickCss: true,
     themeLinks: [],
     disableBackgroundOptimization: true,
