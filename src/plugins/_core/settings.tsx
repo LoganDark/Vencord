@@ -17,8 +17,8 @@
 */
 
 import { definePluginSettings } from "@api/Settings";
-import { BackupRestoreIcon, MainSettingsIcon, PaintbrushIcon, PatchHelperIcon, PlaceholderIcon, PluginsIcon, UpdaterIcon, VesktopSettingsIcon } from "@components/Icons";
-import { BackupAndRestoreTab, PatchHelperTab, PluginsTab, ThemesTab, UpdaterTab, VencordTab } from "@components/settings/tabs";
+import { BackupRestoreIcon, MainSettingsIcon, PaintbrushIcon, PatchHelperIcon, PlaceholderIcon, PluginsIcon, VesktopSettingsIcon } from "@components/Icons";
+import { BackupAndRestoreTab, PatchHelperTab, PluginsTab, ThemesTab, VencordTab } from "@components/settings/tabs";
 import { Devs } from "@utils/constants";
 import { isTruthy } from "@utils/guards";
 import definePlugin, { IconProps, OptionType } from "@utils/types";
@@ -187,13 +187,6 @@ export default definePlugin({
                 title: "Themes",
                 Component: ThemesTab,
                 Icon: PaintbrushIcon
-            }),
-            !IS_UPDATER_DISABLED && UpdaterTab && buildEntry({
-                key: "vencord_updater",
-                title: "Updater",
-                panelTitle: "Vencord Updater",
-                Component: UpdaterTab,
-                Icon: UpdaterIcon
             }),
             buildEntry({
                 key: "vencord_backup_restore",

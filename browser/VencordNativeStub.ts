@@ -69,13 +69,6 @@ window.VencordNative = {
         onRendererCssUpdate: NOOP,
     },
 
-    updater: {
-        getRepo: async () => ({ ok: true, value: "https://github.com/Vendicated/Vencord" }),
-        getUpdates: async () => ({ ok: true, value: [] }),
-        update: async () => ({ ok: true, value: false }),
-        rebuild: async () => ({ ok: true, value: true }),
-    },
-
     quickCss: {
         get: () => DataStore.get("VencordQuickCss").then(s => s ?? ""),
         set: async (css: string) => {

@@ -23,7 +23,6 @@ import { Devs } from "@utils/constants";
 import { Logger } from "@utils/Logger";
 import { closeAllModals } from "@utils/modal";
 import definePlugin, { OptionType } from "@utils/types";
-import { maybePromptToUpdate } from "@utils/updater";
 import { filters, findBulk, proxyLazyWebpack } from "@webpack";
 import { DraftType, ExpressionPickerStore, FluxDispatcher, NavigationRouter, SelectedChannelStore } from "@webpack/common";
 
@@ -54,7 +53,6 @@ const settings = definePluginSettings({
     }
 });
 
-let hasCrashedOnce = false;
 let isRecovering = false;
 let shouldAttemptRecover = true;
 
@@ -112,13 +110,6 @@ export default definePlugin({
                 shouldAttemptRecover = false;
                 // This is enough to avoid a crash loop
                 setTimeout(() => shouldAttemptRecover = true, 1000);
-            } catch { }
-
-            try {
-                if (!hasCrashedOnce) {
-                    hasCrashedOnce = true;
-                    maybePromptToUpdate("Uh oh, Discord has just crashed... but good news, there is a Vencord update available that might fix this issue! Would you like to update now?", true);
-                }
             } catch { }
 
             try {
