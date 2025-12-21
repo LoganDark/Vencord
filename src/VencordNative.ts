@@ -45,13 +45,6 @@ export default {
         openFolder: () => invoke<void>(IpcEvents.OPEN_THEMES_FOLDER),
     },
 
-    updater: {
-        getUpdates: () => invoke<IpcRes<Record<"hash" | "author" | "message", string>[]>>(IpcEvents.GET_UPDATES),
-        update: () => invoke<IpcRes<boolean>>(IpcEvents.UPDATE),
-        rebuild: () => invoke<IpcRes<boolean>>(IpcEvents.BUILD),
-        getRepo: () => invoke<IpcRes<string>>(IpcEvents.GET_REPO),
-    },
-
     settings: {
         get: () => sendSync<Settings>(IpcEvents.GET_SETTINGS),
         set: (settings: Settings, pathToNotify?: string) => invoke<void>(IpcEvents.SET_SETTINGS, settings, pathToNotify),
