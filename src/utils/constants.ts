@@ -17,8 +17,6 @@
 */
 
 export const REACT_GLOBAL = "Vencord.Webpack.Common.React";
-export const VENBOT_USER_ID = "1017176847865352332";
-export const SUPPORT_CATEGORY_ID = "1108135649699180705";
 
 const platform = navigator.platform.toLowerCase();
 export const IS_WINDOWS = platform.startsWith("win");
