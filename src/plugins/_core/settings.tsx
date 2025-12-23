@@ -164,7 +164,7 @@ export default definePlugin({
         if (originalLayoutBuilder.key !== "$Root") return layout;
         if (!Array.isArray(layout)) return layout;
 
-        if (layout.some(s => s?.key === "vencord_section")) return layout;
+        if (layout.some(s => s?.key === "vencord_section_old")) return layout;
 
         const { buildEntry } = this;
 
@@ -230,7 +230,7 @@ export default definePlugin({
         ].filter(isTruthy);
 
         const vencordSection: SettingsLayoutNode = {
-            key: "vencord_section",
+            key: "vencord_section_old",
             type: LayoutTypes.SECTION,
             useTitle: () => "Vencord Settings",
             buildLayout: () => vencordEntries

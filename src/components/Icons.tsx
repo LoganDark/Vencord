@@ -448,6 +448,8 @@ export function PlaceholderIcon(props: IconProps) {
 export function MainSettingsIcon(props: IconProps) {
     return (
         <Icon
+            width={20}
+            height={20}
             {...props}
             viewBox="0 0 24 24"
         >
