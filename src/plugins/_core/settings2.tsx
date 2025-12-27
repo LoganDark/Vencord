@@ -415,16 +415,16 @@ namespace Node {
         }
 
         export type Item = Child;
-        export type Props = InitializeProps & TitleProps & {
+        export type Props = TitleProps & {
             /** If specified, returns an icon to display following the category title */
             readonly useTitleTrailingIcon?: () => React.JSXElementConstructor<{}>;
-        } & SubtitleProps & {
+        } & SubtitleProps & InitializeProps & {
             /** If specified, returns the label to use for the category in the subnav */
             readonly useSubnavLabel?: () => string;
 
             /** If specified, returns a notice to show */
             readonly useNotice?: () => Notice | null;
-        } & TitleProps & ParentProps<readonly Item[]>;
+        } & ParentProps<readonly Item[]>;
     }
 
     export const Accordion = <
@@ -438,13 +438,14 @@ namespace Node {
     > = Node<Type.ACCORDION, K, P>;
 
     export namespace Accordion {
+        export type Item = Child;
         export type Props = {
             /** If specified, returns the title to use for the accordion */
             readonly useTitle?: (isExpanded: boolean) => string;
 
             /** If specified, returns the subtitle to use for the accordion when collapsed */
             readonly useCollapsedSubtitle?: () => string;
-        } & ParentProps<readonly Child[]>;
+        } & ParentProps<readonly Item[]>;
     }
 
     export const List = <
@@ -459,7 +460,6 @@ namespace Node {
 
     export namespace List {
         export type Item = Child;
-
         export type Props = TitleProps & InitializeProps & {
             /** If specified, returns the number of items to display when not collapsed */
             readonly collapseAfter?: number;
@@ -470,6 +470,40 @@ namespace Node {
             /** If specified, returns the subtitle to use for the list when collapsed */
             readonly useCollapsedSubtitle?: () => string;
         } & ParentProps<readonly Item[]>;
+    }
+
+    export const Related = <
+        K extends string = string,
+        P extends Related.Props = Related.Props
+    >(key: K, props: P) => construct(Type.RELATED, key, props);
+
+    export type Related<
+        K extends string = string,
+        P extends Related.Props = Related.Props
+    > = Node<Type.RELATED, K, P>;
+
+    export namespace Related {
+        export type Item = Child;
+        export type Props = ParentProps<readonly Item[]>;
+    }
+
+    export const FieldSet = <
+        K extends string = string,
+        P extends FieldSet.Props = FieldSet.Props
+    >(key: K, props: P) => construct(Type.FIELD_SET, key, props);
+
+    export type FieldSet<
+        K extends string = string,
+        P extends FieldSet.Props = FieldSet.Props
+    > = Node<Type.FIELD_SET, K, P>;
+
+    export namespace FieldSet {
+        export type Variant = "default" | "separators";
+        export type Item = Child;
+        export type Props = TitleProps & SubtitleProps & InitializeProps & {
+            /** If specified, the variant of the field set */
+            readonly variant?: Variant;
+        } & ParentProps<readonly Child[]>;
     }
 
     export const TabItem = <
@@ -487,7 +521,7 @@ namespace Node {
         export type Props = {
             /** Returns the title to use for the node */
             readonly getTitle: () => string;
-        } & ParentProps<readonly Child[]>;
+        } & ParentProps<readonly Item[]>;
     }
 
     export const Static = <
