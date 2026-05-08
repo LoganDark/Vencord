@@ -23,6 +23,8 @@ export const CspPolicies: PolicyMap = {
     // CDN used for some things by Vencord.
     // FIXME: we really should not be using CDNs anymore
     "cdn.jsdelivr.net": ImageScriptsAndCssSrc,
+
+    "ws://localhost:12420/mcp": ConnectSrc
 };
 
 const findHeader = (headers: PolicyMap, headerName: Lowercase<string>) => {
