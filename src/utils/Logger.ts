@@ -23,7 +23,7 @@ export class Logger {
      * @param title Text
      * @returns Array. Destructure this into {@link Logger}.errorCustomFmt or console.log
      *
-     * @example logger.errorCustomFmt(...Logger.makeTitleElements("white", "Hello"), "World");
+     * @example logger.error(...Logger.makeTitleElements("white", "Hello"), "World");
      */
     static makeTitle(color: string, title: string): [string, ...string[]] {
         return ["%c %c %s ", "", `background: ${color}; color: black; font-weight: bold; border-radius: 5px;`, title];
@@ -31,42 +31,44 @@ export class Logger {
 
     constructor(public name: string, public color: string = "white") { }
 
-    private _log(level: "log" | "error" | "warn" | "info" | "debug", levelColor: string, args: any[], customFmt = "") {
+    private _log(level: "log" | "error" | "warn" | "info" | "debug", levelColor: string, fmt: any, ...args: any[]) {
         if (IS_REPORTER && IS_WEB && !IS_VESKTOP) {
             console[level]("[Vencord]", this.name + ":", ...args);
             return;
         }
 
+        if (typeof fmt !== "string") {
+            args.unshift(fmt);
+            fmt = "%o";
+        }
+
         console[level](
-            `%c Vencord %c %c ${this.name} ${customFmt}`,
+            `%c Vencord %c %c ${this.name} %c ${fmt}`,
             `background: ${levelColor}; color: black; font-weight: bold; border-radius: 5px;`,
             "",
-            `background: ${this.color}; color: black; font-weight: bold; border-radius: 5px;`
-            , ...args
+            `background: ${this.color}; color: black; font-weight: bold; border-radius: 5px;`,
+            "",
+            ...args
         );
     }
 
-    public log(...args: any[]) {
-        this._log("log", "#a6d189", args);
+    public log(fmt: any, ...args: any[]) {
+        this._log("log", "#a6d189", fmt, ...args);
     }
 
-    public info(...args: any[]) {
-        this._log("info", "#a6d189", args);
+    public info(fmt: any, ...args: any[]) {
+        this._log("info", "#a6d189", fmt, ...args);
     }
 
-    public error(...args: any[]) {
-        this._log("error", "#e78284", args);
+    public error(fmt: any, ...args: any[]) {
+        this._log("error", "#e78284", fmt, ...args);
     }
 
-    public errorCustomFmt(fmt: string, ...args: any[]) {
-        this._log("error", "#e78284", args, fmt);
+    public warn(fmt: any, ...args: any[]) {
+        this._log("warn", "#e5c890", fmt, ...args);
     }
 
-    public warn(...args: any[]) {
-        this._log("warn", "#e5c890", args);
-    }
-
-    public debug(...args: any[]) {
-        this._log("debug", "#eebebe", args);
+    public debug(fmt: any, ...args: any[]) {
+        this._log("debug", "#eebebe", fmt, ...args);
     }
 }
