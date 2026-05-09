@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "VencordMcp": {
+      "type": "stdio",
+      "command": "tsx",
+      "args": [
+        "VencordMcp/src/index.ts"
+      ],
+      "env": {}
+    }
+  }
+}
