@@ -655,8 +655,8 @@ function diffErroredPatch(code: string, lastCode: string, match: RegExpMatchArra
         elements.push("color:" + color, d.value);
     }
 
-    logger.errorCustomFmt(...Logger.makeTitle("white", "Before"), context);
-    logger.errorCustomFmt(...Logger.makeTitle("white", "After"), patchedContext);
+    logger.error(...Logger.makeTitle("white", "Before"), context);
+    logger.error(...Logger.makeTitle("white", "After"), patchedContext);
     const [titleFmt, ...titleElements] = Logger.makeTitle("white", "Diff");
-    logger.errorCustomFmt(titleFmt + fmt, ...titleElements, ...elements);
+    logger.error(titleFmt + fmt, ...titleElements, ...elements);
 }
