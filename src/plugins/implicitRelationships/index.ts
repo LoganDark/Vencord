@@ -20,7 +20,7 @@ import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
-import { Constants, FluxDispatcher, GuildStore, RelationshipStore, SnowflakeUtils, UserAffinitiesStore, UserStore } from "@webpack/common";
+import { Constants, FluxDispatcher, FriendsStore, GuildStore, RelationshipStore, SelectedChannelStore, SnowflakeUtils, UserAffinitiesStore, UserStore } from "@webpack/common";
 
 const settings = definePluginSettings(
     {
@@ -30,14 +30,26 @@ const settings = definePluginSettings(
             description: "Whether to sort implicit relationships by their affinity to you.",
             restartNeeded: true
         },
+        selectByDefault: {
+            type: OptionType.BOOLEAN,
+            default: false,
+            description: "Whether to select the Implicit tab by default when opening the Friends tab.",
+            restartNeeded: true
+        },
     }
 );
+
+let fetchedImplicitRelationships = false;
+
+interface FluxThis {
+    fetchForDefaultSection(): void;
+}
 
 export default definePlugin({
     name: "ImplicitRelationships",
     description: "Shows your implicit relationships in the Friends tab.",
     tags: ["Friends", "Servers"],
-    authors: [Devs.Dolfies],
+    authors: [Devs.Dolfies, Devs.LoganDark],
     settings,
 
     patches: [
@@ -71,6 +83,14 @@ export default definePlugin({
             replacement: {
                 match: /(?<=case (\i\.\i)\.SUGGESTIONS:return \d+===(\i)\.type)/,
                 replace: ";case $1.IMPLICIT:return $2.type===5"
+            },
+        },
+        // Default section
+        {
+            find: '"FriendsStore"',
+            replacement: {
+                match: /(?<=\i=)0===\i\[\i\.\i\.FRIEND\]\?.{0,100}?:\i\.\i\.ONLINE(?=})/,
+                replace: "$self.getInitialSection($&)"
             },
         },
         // Piggyback relationship fetch
@@ -122,7 +142,32 @@ export default definePlugin({
             : comparator(row);
     },
 
+    getInitialSection(section: string) {
+        return settings.store.selectByDefault ? "IMPLICIT" : section;
+    },
+
+    // Discord only fetches relationships once a tab is clicked, which never has to happen for the default one
+    fetchForDefaultSection() {
+        if (!settings.store.selectByDefault || fetchedImplicitRelationships) return;
+        if (FriendsStore.getState().section as string !== "IMPLICIT") return;
+
+        this.fetchImplicitRelationships();
+    },
+
+    flux: {
+        CONNECTION_OPEN(this: FluxThis) {
+            // Reconnecting resets the relationships
+            fetchedImplicitRelationships = false;
+            if (SelectedChannelStore.getChannelId() == null) this.fetchForDefaultSection();
+        },
+        CHANNEL_SELECT(this: FluxThis, { channelId }) {
+            if (channelId == null) this.fetchForDefaultSection();
+        }
+    },
+
     async fetchImplicitRelationships() {
+        fetchedImplicitRelationships = true;
+
         // Implicit relationships are defined as users that you:
         // 1. Have an affinity for
         // 2. Do not have a relationship with
