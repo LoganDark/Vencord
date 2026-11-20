@@ -1,0 +1,36 @@
+[2026-11-20T09:26:33.528Z] cwd=/Users/LoganDark/Documents/Vencord
+Feature ideas from a long patch-maintenance session (auditing and repairing ~8 Vencord plugins against Canary). Ordered by how much time each would have saved.
+
+BIGGEST WINS
+
+1. Test patches in Vencord's own syntax.
+   test_module_patch takes raw regex, so every `\i`, `$self` and `#{intl::KEY}` had to be hand-expanded, and I wrote my own evaluate loop to run a plugin's finds across all modules. Wanted: a tool that takes {find, match, replace} exactly as written in a plugin (or a plugin name, to test its currently registered patches) and reports: which modules the find hits (loaded AND unloaded), match count per replacement, whether the patched source parses, and a short before/after snippet around each match. It should warn when a non-`all` find hits more than one module (found two such ambiguous finds by hand: NoTimestamps `showTimestampOnHover:` and ImplicitRelationships `GUILD_MEMBERS_REQUEST:`).
+   Related papercut: test_module_patch echoes the full matched text and full replacement. For a patch that matches a whole function (6KB) that flooded the reply twice over. A truncation/context-chars option would help.
+
+2. Report which patches actually applied in the running client.
+   On a non-dev build there is no SYM_PATCHED_SOURCE / SYM_PATCHED_BY, and WebpackPatcher.patches empties as patches are consumed, so "did this patch apply?" could not be answered directly. I had to walk React fibers to find a live patched function and stringify it. Wanted: capture the patcher's "had no effect" / "errored" / "Undoing patch group" warnings at startup and expose them per plugin. A general console-log reader (filterable by logger name) would cover this too.
+
+3. Search with context, not just module ids.
+   find_modules_by_string / _by_regex return ids only. I repeatedly wrote evaluate scripts to get match counts plus surrounding text, and to check several candidate find strings for uniqueness in one go. Wanted: optional context snippets and per-module match counts, and multiple needles per call. Also: evaluate cannot see the unloaded-chunk index, so my hand-rolled uniqueness checks only covered loaded modules.
+
+4. Reverse intl lookup.
+   Given a hashed key (e.g. `t.J6STd9`) return the English message; given text (e.g. "Claim") return matching keys and the modules using them. I located a UI string by reading feature plumbing when a text search would have gone straight to it.
+
+SMALLER THINGS
+
+5. Reading big modules. Anything over ~80KB overflowed the tool result into a file that then had to be sliced with jq. Wanted on read_module_source: offset/length, "context around this needle", and "return the enclosing function at this offset / containing this string".
+
+6. Importers and call sites. "Which modules import module X, under what local alias, and how do they call export Y" came up three times and was rebuilt by regex each time. Wanted: find_importers(moduleId, exportName?) returning call-site snippets.
+
+7. Component tools. (a) Find mounted instances of the component whose source contains a string, returning a props summary, child tree and DOM labels. (b) Render a component offscreen in a detached root with given props and an error boundary, returning the resulting DOM summary. I built (b) by hand and it was what settled a "is the patch broken or is it the channel" question.
+
+8. Privacy-safe previews. I wrote shape-only summarizers to avoid pulling the user's DMs, user ids and message content into the transcript, and still leaked some DOM text once through a careless selector. Wanted: a redacting preview mode (types/shapes/counts, no string values) for evaluate and inspect, ideally the default for store data.
+
+9. Session handling. With two sessions connected (PTB + Canary) every call needed clientId. Wanted: a sticky default session, or selection by releaseChannel. Also a notice when a session's buildNumber changes mid-session (Canary updated once during the work) or when a client reconnects.
+
+10. Refs. Nearly every evaluate was a one-shot read, so I was constantly calling release_ref. Wanted: an option for evaluate not to mint a ref (or auto-release).
+
+11. Module diff across sessions. Comparing the same module/function between two connected sessions (e.g. PTB vs Canary), or against a cached copy from a previous build, would show exactly what changed when a patch goes stale.
+
+12. Minor: evaluate's EVAL_FAILED message has no stack or line, so a `Cannot read properties of undefined (reading 'filter')` in a 30-line definition took a second call to locate.
+
