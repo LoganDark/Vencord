@@ -34,3 +34,28 @@ SMALLER THINGS
 
 12. Minor: evaluate's EVAL_FAILED message has no stack or line, so a `Cannot read properties of undefined (reading 'filter')` in a 30-line definition took a second call to locate.
 
+[2026-11-21T09:51:46.608Z] cwd=/Users/LoganDark/Documents/Vencord
+Session context: checked ShowAllMessageButtons + MoreQuickReactions compatibility, traced why Discord opens /quest-home at startup, fixed patches in two userplugins (noNitroShopQuests, noClosingPrivateChannels). Two sessions connected (canary 678980, ptb 678976). Feedback, most valuable first:
+
+1. Accept Vencord patch syntax directly. Every pattern passed to test_module_patch / match_module_source had to have `\i` hand-expanded to `[A-Za-z_$][\w$]*`, and `$self` hand-expanded to `Vencord.Plugins.plugins["Name"]`. That means the regex I tested is not the regex I then wrote into the plugin, so a transcription slip between the two goes untested. Running patterns through canonicalizeMatch / canonicalizeReplace (src/utils/patches.ts) inside the plugin would remove this. Intl keys (`#{intl::KEY}`) the same.
+
+2. A tool that takes a whole Vencord patch ({find, replacement[]}) rather than a module id. It should resolve `find`, report how many modules it matches (uniqueness is a requirement for a find and I had to check it with ad hoc evaluate scans every time), then run the replacements. Ideally it could take a plugin name and test that plugin's patches as built.
+
+3. Patch status for the live client. I could not see which plugins patched a module or whether a replacement had no effect. I guessed at `$$vencordPatchedBy` and got nothing; String(wreq.m[id]) returns the unpatched source. Dev builds already expose wpPatcher.getFactoryPatchedSource / getFactoryPatchedBy. Wanted: (a) per plugin, each patch's find result, target module and per-replacement effect, (b) a `patched: true` option on read_module_source / match_module_source. "Fix plugin X" would start from (a) instead of from reading the module.
+
+4. Search across all modules with context. Most of my evaluate calls were hand-written `Object.keys(wreq.m).filter(...)` loops returning `.{0,200}needle.{0,200}` snippets, or AND-ing several substrings. A cross-module regex search that returns snippets with configurable context per hit (not just module ids), plus multiple needles with AND, would replace nearly all of them.
+
+5. Fan out to all sessions. With two clients connected every call needs a clientId and I ran each check twice. An option to run on every session and report per-session results (or just "identical on all") would halve the calls.
+
+6. test_module_patch output size. When a replacement matches a large span (a whole ~7KB function for ShowAllMessageButtons), the trial echoes the full `matched` and the full `replacement`, so ~14KB for a change of ~200 chars. A diff-style view (changed regions with some context) or a cap with an opt-in for the full text would help. With includeFinalSource on a 157KB module the reply was 172KB and overflowed the tool result limit; a hard cap or a "write to file and return the path" behavior would be safer than returning it inline.
+
+7. evaluate ergonomics. (a) I passed previewLimits on almost every call; the 400-char default total is too small for the common case of returning collected snippets. For plain JSON-serializable results, returning real JSON (with a size cap) would be better than a truncated preview string. (b) Every call parks a ref even when only the preview is wanted; I left a dozen unreleased. An option not to park, or auto-release for plain data, would keep the registry clean.
+
+8. Startup / reload investigation. There is no way to observe anything that happens before the plugin connects. I only confirmed the /quest-home redirect because window.navigation.entries() happened to retain it. Useful: a small boot-time buffer the plugin records before connecting (route changes, Vencord patch warnings such as "had no effect", console errors) that can be queried afterwards, and a reload tool that waits for the session to reconnect (gated on user approval) so a fix can be verified end to end. The persistent clientId across restarts worked well for this.
+
+9. Server instructions get truncated by the client. The instructions block was cut off partway through the "Patch nodes" section, so anything after it never reached me. Shortening the instructions or moving detail into the tool descriptions would avoid that.
+
+10. Lower priority: a helper to look up CSS rules for a class-name module (given a module id, return the rules whose selectors use its classes). I wrote a stylesheet walker by hand to learn what `nameplated` did.
+
+What worked well: test_module_patch's parse check of the final source, match_module_source with groups and offsets, sessions reconnecting under the same clientId after a restart.
+
